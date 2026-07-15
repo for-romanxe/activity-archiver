@@ -1,26 +1,304 @@
 @import "tailwindcss";
 
+/* ── 인광 관제실 컨셉 ─────────────────────────────
+   검은 청흑 캔버스 + 인광 청록 액센트 + 호박색 경고.
+   D-day 추적(마감 관제)이 이 앱의 심장이라는 데서 나온 컨셉:
+   패널은 보더로만 구분, 데이터는 모노(JetBrains Mono),
+   라틴 표제는 Rajdhani, 한글 본문은 시스템 산세리프.
+   토큰 이름은 종이 컨셉 시절 것을 유지하고 값만 교체:
+   paper=캔버스 / ink=전경 텍스트 / stamp=경고 레드 / seal=호박 */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #0a0e0d;
+  --paper-deep: #0f1614;
+  --paper-line: #223029;
+  --ink: #d6e2dd;
+  --ink-soft: #82968e;
+  --stamp: #ff6b5c;
+  --seal: #f2b33d;
+  --accent: #4dd8c0;
+  --btn-face: #123c33;
+  --btn-face-hover: #175045;
+  --btn-edge: #2f8a75;
+  --btn-text: #7df0da;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-paper-line: var(--paper-line);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-stamp: var(--stamp);
+  --color-seal: var(--seal);
+  --color-accent: var(--accent);
+  --font-display: var(--font-rajdhani), "Avenir Next Condensed", -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+/* 패널: 캔버스와 같은 바탕, 보더로만 구분 */
+.dossier {
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 4px;
+}
+
+.dossier-hover {
+  transition: border-color 120ms ease;
+}
+.dossier-hover:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--paper-line));
+}
+
+/* 패널 헤더 바: 인광 캐럿 마커 + 모노 표기 */
+.box-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem 0.6rem 2rem;
+  background: var(--paper-deep);
+  border-bottom: 1px solid var(--paper-line);
+  border-radius: 4px 4px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+/* 인광 캐럿 마커: flex 레이아웃(justify-between 등)에 끼어들지 않게 absolute */
+.box-header::before {
+  content: "▸";
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+/* 패널 내부 리스트 행 */
+.box-row {
+  display: block;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-line) 60%, transparent);
+}
+.box-row:last-child {
+  border-bottom: 0;
+  border-radius: 0 0 4px 4px;
+}
+/* 판독줄에서 앵커로 도착한 행: 호박색으로 짚어준다 */
+.box-row:target {
+  background: color-mix(in srgb, var(--seal) 8%, transparent);
+  box-shadow: inset 2px 0 0 var(--seal);
+}
+
+.row-hover {
+  transition: background 100ms ease, box-shadow 100ms ease;
+}
+.row-hover:hover {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* 제목 링크: 인광 발광 */
+.title-link {
+  color: var(--accent);
+  font-weight: 600;
+}
+.title-link:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* 계기판 태그: 각진 모노 배지. 색은 currentColor를 따라가므로
+   !text-seal 등으로 통째로 색을 바꿀 수 있다 */
+.stamp-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--stamp);
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  padding: 0.15rem 0.6rem;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* 상단 내비: 인광 밑줄 탭 */
+.folder-tab {
+  padding: 0.6rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  border-bottom: 2px solid transparent;
+}
+.folder-tab:hover {
+  color: var(--ink);
+}
+.folder-tab[data-active="true"] {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* 콘솔 헤더: 전원 인디케이터 라인 + 미세 주사선 */
+.console-head {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 2px,
+      color-mix(in srgb, var(--ink) 1.5%, transparent) 2px 3px
+    ),
+    #070b0a;
+  border-top: 2px solid var(--accent);
+  border-bottom: 1px solid var(--paper-line);
+}
+
+/* 상태 판독줄 */
+.readout {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.readout b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* 마감 임박 점멸 */
+.pulse-warn {
+  animation: pulse-warn 1.6s ease-in-out infinite;
+}
+@keyframes pulse-warn {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse-warn { animation: none; }
+}
+
+/* 입력 필드 */
+.field {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 4px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.9rem;
+  color: var(--ink);
+  outline: none;
+}
+.field::placeholder {
+  color: #55665f;
+}
+.field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+select.field {
+  background: var(--paper-deep);
+}
+
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+/* 프라이머리: 인광 버튼 */
+.btn-ink {
+  background: var(--btn-face);
+  color: var(--btn-text);
+  border: 1px solid var(--btn-edge);
+  border-radius: 4px;
+  padding: 0.375rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 100ms ease, box-shadow 100ms ease;
+}
+.btn-ink:hover {
+  background: var(--btn-face-hover);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.btn-ink:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* 세컨더리 */
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--paper-line);
+  border-radius: 4px;
+  padding: 0.375rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* 관제실 도마뱀: 클릭 통과, transform은 JS가 몬다 */
+.console-lizard {
+  position: fixed;
+  left: -22px; /* svg 중심이 좌표가 되게 절반만큼 당김 */
+  top: -22px;
+  z-index: 40;
+  pointer-events: none;
+  will-change: transform;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+.console-lizard .lizard-tail {
+  transform-origin: 32px 44px;
+}
+.console-lizard.dashing .lizard-tail {
+  animation: tail-sway 0.35s ease-in-out infinite;
+}
+@keyframes tail-sway {
+  0%, 100% { transform: rotate(9deg); }
+  50% { transform: rotate(-9deg); }
+}
+
+/* 다리: 몸통에 붙은 지점을 축으로 젓는다. transform-origin은 viewBox 좌표 */
+.console-lizard .leg-fl { transform-origin: 27px 26px; }
+.console-lizard .leg-fr { transform-origin: 37px 26px; }
+.console-lizard .leg-bl { transform-origin: 28px 40px; }
+.console-lizard .leg-br { transform-origin: 36px 40px; }
+/* 대각선 보행: 앞왼+뒷오 한 쌍, 앞오+뒷왼은 반 박자(-0.175s) 어긋난 위상 */
+.console-lizard.dashing .leg-fl,
+.console-lizard.dashing .leg-br {
+  animation: leg-swing 0.35s ease-in-out infinite;
+}
+.console-lizard.dashing .leg-fr,
+.console-lizard.dashing .leg-bl {
+  animation: leg-swing 0.35s ease-in-out infinite;
+  animation-delay: -0.175s;
+}
+@keyframes leg-swing {
+  0%, 100% { transform: rotate(22deg); }
+  50% { transform: rotate(-18deg); }
+}
+
+.rule-double {
+  border-top: 1px solid var(--paper-line);
+}
+.rule-dashed {
+  border-top: 1px dashed var(--paper-line);
 }
